@@ -11,8 +11,8 @@ public class ArticulosAD{
     private Connection conexion;
     private Statement statement;
 	private ArticulosDP articulosDP;
-	private PrintWriter archivoSalida;
-	private BufferedReader archivoEntrada;
+	private VentasDP ventasDP;
+
 	
 	public ArticulosAD(){
 		try {
@@ -199,4 +199,46 @@ public class ArticulosAD{
 	        
 	        return respuesta;
 	    }
+		
+	    public String venderArticulos(int cantidad, int existencia, String clave, String datos) {
+	        String updateSQL = "";
+	        String res = "";
+	        String insertVenta = "";
+	        existencia -= cantidad;
+	        
+	        ventasDP = new VentasDP(datos);
+	        
+	        try{
+	            
+	            //1) Abrir la base de datos Banco
+	            statement = conexion.createStatement();
+	            
+	            updateSQL = "UPDATE Producto SET existencia = " + existencia + " WHERE clave = '" + clave.toString() + "'";
+	            
+	            //2) Ejecutar UPDATE Statement
+	            statement.executeUpdate(updateSQL);
+	            
+	            res = "Venta exit—sa";
+	            
+	            //3) Crear sentencia INSERT
+	            insertVenta = "INSERT INTO Ventas VALUES(" + ventasDP.toSQLString() + ");";
+	            
+	            //4) Capturar datos en la tabla correspondiente
+	            statement.executeUpdate(insertVenta);
+	            
+	            //5) Cerra la base de datos banco
+	            statement.close();
+	            System.out.println(conexion.nativeSQL(updateSQL));
+	            System.out.println(conexion.nativeSQL(insertVenta));
+
+	        }
+	        catch(SQLException sqle){
+	            System.out.println("Error: \n" + sqle);
+	            res = "ERROR";
+	        }
+	        
+	        return res;
+
+		}
+	    
 }
