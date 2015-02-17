@@ -17,7 +17,7 @@ public class ArticulosAD{
 	public ArticulosAD(){
 		try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
-			conexion = DriverManager.getConnection("jdbc:mysql://localhost/AmazonTec?user=root");
+			conexion = DriverManager.getConnection("jdbc:mysql://localhost/AmazonTec","root","admin");
             
 			System.out.println("Conexi—n exit—sa a la Base de Datos Banco, Driver JDBC Tipo 4");
 		}
