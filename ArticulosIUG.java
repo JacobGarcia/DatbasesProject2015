@@ -425,6 +425,10 @@ public class ArticulosIUG extends Frame implements ActionListener
 			else
 				resultado = articulos.consultarClave(clave);
 		}
+		if(elemento.equals("VENTAS"))
+		{
+			resultado = articulos.consultarVenta("VENTAS","");
+		}
 
 		return resultado;
 	}
@@ -591,6 +595,7 @@ public class ArticulosIUG extends Frame implements ActionListener
 		if(e.getSource() == bConsultarVentas)
 		{
 			//resultado = articulos.consultarArticulos("VENTAS");
+			resultado = consultar("VENTAS");
 			print(resultado);
 		}
 		

@@ -158,6 +158,7 @@ public class ArticulosAD{
 	        
 	        if (tipoConsulta.equals("PROVEEDOR"))
 	        	query = "SELECT * FROM Producto WHERE proveedor = '" + str.toString() + "'";
+	        	
 	        
 	        articulosDP = new ArticulosDP();
 	        try{
@@ -240,5 +241,58 @@ public class ArticulosAD{
 	        return res;
 
 		}
+		
+		public String consultarVenta(String tipoConsulta, String str){
+	        ResultSet result = null;
+	        String query = "";
+	        String respuesta = "";
+	        
+	        if (tipoConsulta.equals("VENTAS"))
+	        	query = "SELECT producto.nombre, producto.tipo, producto.proveedor, ventas.cantidad, ventas.ventaTotal, ventas.fecha, ventas.hora FROM producto INNER JOIN ventas ON producto.clave = ventas.clave";
+	        
+	        /*if (tipoConsulta.equals("PROVEEDOR"))
+	        	query = "SELECT * FROM Producto WHERE nombre = '" + str.toString() + "'";
+	        
+	        if (tipoConsulta.equals("TIPO"))
+	        	query = "SELECT * FROM Producto WHERE proveedor = '" + str.toString() + "'";*/
+	        
+	        articulosDP = new ArticulosDP();
+	        try{
+	            
+	            //1) Abrir la base de datos Banco
+	            statement = conexion.createStatement();
+	            
+	            //2) Procesar datos de la tabla resultante
+	            result = statement.executeQuery(query);
+	            
+	            while(result.next()){
+	                articulosDP.setNombre(result.getString(1));
+	                articulosDP.setTipo(result.getString(2));
+	                articulosDP.setMarca(result.getString(3));
+	                
+	                
+	                respuesta = respuesta + articulosDP.toString() + "\n";
+	            }
+	            
+	            if(respuesta == ""){
+		            if (tipoConsulta.equals("VENTAS"))
+		                respuesta = "No se encontr— ningœna venta " + str;
+		           /* if (tipoConsulta.equals("PROVEEDOR"))
+		                respuesta = "No se encontr— ningœna venta con el proveedor: " + str;
+		            if (tipoConsulta.equals("TIPO"))
+		                respuesta = "No se encontr— ningœa venta con el tipo: " + str;*/
+	            }
+	            
+	            //3) Cerra la base de datos banco
+	            statement.close();
+	            System.out.println(conexion.nativeSQL(query));
+	        }
+	        catch(SQLException sqle){
+	            System.out.println("Error: \n" + sqle);
+	            respuesta = "No se pudo realizar la consulta";
+	        }
+	        
+	        return respuesta;
+	    }
 	    
 }

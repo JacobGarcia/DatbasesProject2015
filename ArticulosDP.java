@@ -59,8 +59,7 @@ public class ArticulosDP
 	public float getPrecio()
 	{
 		return this.precio;
-	}
-	
+	}	
 		
 	public ArticulosDP getNext()
 	{
