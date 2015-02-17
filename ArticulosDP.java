@@ -4,9 +4,10 @@ public class ArticulosDP
 {
 	private String clave;
 	private String nombre;
-	private String existencia;
+	private int existencia;
 	private String marca;
-	private String precio;
+	private float precio;
+	private String tipo;
 
 	private ArticulosDP next;
 	
@@ -16,8 +17,9 @@ public class ArticulosDP
 		this.clave      = "";
 		this.nombre     = "";
 		this.marca		= "";
-		this.existencia = "";
-		this.precio		= "";
+		this.existencia = 0;
+		this.precio		= (float) 0.0;
+		this.tipo		= "";
 	}
 	
 	//String Tokenizer
@@ -27,9 +29,10 @@ public class ArticulosDP
 		
 			this.clave 		= st.nextToken();
 			this.nombre 	= st.nextToken();
+			this.tipo		= st.nextToken();
 			this.marca		= st.nextToken();
-			this.existencia = st.nextToken();
-			this.precio 	= st.nextToken();
+			this.existencia = Integer.parseInt(st.nextToken());
+			this.precio 	= Float.parseFloat(st.nextToken());
 	}
 	
 	//Accessors (Getters)
@@ -43,7 +46,7 @@ public class ArticulosDP
 		return this.nombre;
 	}
 	
-	public String getExistencia()
+	public int getExistencia()
 	{
 		return this.existencia;
 	}
@@ -53,7 +56,7 @@ public class ArticulosDP
 		return this.marca;
 	}
 
-	public String getPrecio()
+	public float getPrecio()
 	{
 		return this.precio;
 	}
@@ -75,17 +78,17 @@ public class ArticulosDP
 		this.nombre = nombre;
 	}
 	
-	public void setExistencia(String existencia)
+	public void setExistencia(int existencia)
 	{
 		this.existencia = existencia;
 	}
 
-	public void setMarca(String existencia)
+	public void setMarca(String marca)
 	{
 		this.marca = marca;
 	}
 
-	public void setPrecio(String precio)
+	public void setPrecio(float precio)
 	{
 		this.precio = precio;
 	}
@@ -95,9 +98,18 @@ public class ArticulosDP
 		this.next = dir;
 	}
 	
+	public void setTipo(String tipo)
+	{
+		this.tipo = tipo;
+	}
+	
 	//Final String
 	public String toString()
 	{
-		return this.clave+"_"+this.nombre+"_"+this.marca+"_"+this.existencia+"_"+this.precio;
+		return this.clave+"_"+this.nombre+"_"+this.tipo+"_"+this.marca+"_"+this.existencia+"_"+this.precio;
 	}
+	
+    public String toSQLString(){
+        return "'" + this.clave + "','" + this.nombre+"','"+this.tipo+"','"+this.marca+"'," + this.existencia + "," + this.precio;
+    }
 }

@@ -1,332 +1,202 @@
-import javax.swing.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.*;
 import java.io.*;
 
-public class ArticulosAD
-{
-	private ArticulosDP primero, ultimo, actual, anterior, primerVenta, actualVenta, ultimaVenta, anteriorVenta;
+public class ArticulosAD{
+	
+    private Connection conexion;
+    private Statement statement;
+	private ArticulosDP articulosDP;
 	private PrintWriter archivoSalida;
 	private BufferedReader archivoEntrada;
 	
-	public ArticulosAD()
-	{
-		String datos = "";
-		try
-		{
-			/******** Archivo de Artículos ***********/
-			//1) Abrir Archivo
-			archivoEntrada = new BufferedReader(new FileReader("Articulos.txt"));
-			
-			//2) Procesar datos del archivo
-			while(archivoEntrada.ready())
-			{
-				datos = archivoEntrada.readLine();
-				crearNodo(datos);
-			}
-			
-			//3) Cerrar Archivo
-			archivoEntrada.close();
-			
-			/******** Archivo de Ventas ***********/
-			//1) Abrir Archivo
-			archivoEntrada = new BufferedReader(new FileReader("Ventas.txt"));
-			
-			//2) Procesar datos del archivo
-			while(archivoEntrada.ready())
-			{
-				datos = archivoEntrada.readLine();
-				crearNodoVentas(datos);
-			}
-			
-			//3) Cerrar Archivo
-			archivoEntrada.close();
+	public ArticulosAD(){
+		try {
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+			conexion = DriverManager.getConnection("jdbc:mysql://localhost/AmazonTec?user=root");
+            
+			System.out.println("Conexi—n exit—sa a la Base de Datos Banco, Driver JDBC Tipo 4");
 		}
-		catch(IOException ioe)
-		{
-			System.out.println("Error: " + ioe);
+		catch(ClassNotFoundException cnfe){
+			System.out.println("Error con el Driver JDBC: " + cnfe);
+		}
+		catch(InstantiationException ie){
+			System.out.println("Error al crear la instancia: " + ie);
+		}
+		catch(IllegalAccessException iae){
+			System.out.println("Error. Acceso ilegal a la base de datos: " + iae);
+		}
+		catch(SQLException sqle){
+			System.out.println("Error SQL: " + sqle);
+		
 		}
 	}
 	
-	private String consultarArchivo(String archivo)
-	{
-		String datos = "";
-		try
-		{
-			//1) Abrir Archivo
-			archivoEntrada = new BufferedReader(new FileReader(archivo));
-			
-			//2) Procesar datos del archivo
-			while(archivoEntrada.ready())
-			{
-				datos = datos + archivoEntrada.readLine() + "\n";
-			}
-				
-			//3) Cerrar Archivo
-			archivoEntrada.close();
-		}
-		catch(IOException ioe)
-		{
-			System.out.println("Error: " + ioe);
-		}
-		
-		return datos;
+	public String capturarArticulo(String datos){
+		String insertArticulo = "";
+        String respuesta = "";
+        
+        articulosDP = new ArticulosDP(datos);
+        
+        /* Crear String con instrucci—n SQL */
+        insertArticulo = "INSERT INTO Producto VALUES(" + articulosDP.toSQLString() + ");";
+        
+        try {
+            //1) Abrir la base de datos Banco
+            statement = conexion.createStatement();
+            
+            //2) Capturar datos en la tabla correspondiente
+            statement.executeUpdate(insertArticulo);
+            
+            //3) Cerrar la base de datos Banco
+            statement.close();
+            
+            respuesta = "Datos: " + datos;
+            System.out.println(conexion.nativeSQL(insertArticulo));
+        }
+        catch(SQLException sqle){
+            	System.out.println("Error: " + sqle);
+        }
+        return respuesta;
 	}
+	
+	public String consultarArticulos(){
+        ResultSet result = null;
+        String query = "";
+        String respuesta = "";
+        
+        query = "SELECT * FROM Producto";
+        
+        articulosDP = new ArticulosDP();
+        try{
+            
+            //1) Abrir la base de datos Banco
+            statement = conexion.createStatement();
+        
+            //2) Procesar datos de la tabla resultante
+            result = statement.executeQuery(query);
+            
+            while(result.next()){
+                articulosDP.setClave(result.getString(1));
+                articulosDP.setNombre(result.getString(2));
+                articulosDP.setTipo(result.getString(3));
+                articulosDP.setMarca(result.getString(4));
+                articulosDP.setExistencia(result.getInt(5));
+                articulosDP.setPrecio(result.getFloat(6));
+                
+                respuesta = respuesta + articulosDP.toString() + "\n";
+            }
+            
+            //3) Cerra la base de datos banco
+            statement.close();
+            System.out.println(conexion.nativeSQL(query));
+        }
+        catch(SQLException sqle){
+            System.out.println("Error: \n" + sqle);
+            respuesta = "No se pudo realizar la consulta";
+        }
+        
+        return respuesta;
+    }
 
-	public String crearNodo(String datos)
-	{
-		String respuesta = "Nuevo nodo creado: ";
-		if(primero == null)
-		{
-			primero = new ArticulosDP(datos);
-			ultimo = primero;
-			ultimo.setNext(null);
-			return respuesta + datos;
-		}
-		else
-		{
-			actual = new ArticulosDP(datos);
-			ultimo.setNext(actual); //Link
-			ultimo = actual;
-			ultimo.setNext(null);
-			return respuesta + datos;
-		}
-	}
-	
-	public String crearNodoVentas(String datos)
-	{
-		String respuesta = "Nuevo nodo creado: ";
-		if(primerVenta == null)
-		{
-			primerVenta = new ArticulosDP(datos);
-			ultimaVenta = primerVenta;
-			ultimaVenta.setNext(null);
-			return respuesta + datos;
-		}
-		else
-		{
-			actualVenta = new ArticulosDP(datos);
-			ultimaVenta.setNext(actualVenta); //Link
-			ultimaVenta = actualVenta;
-			ultimaVenta.setNext(null);
-			return respuesta + datos;
-		}
-	}
-	
-	public boolean vacia()
-	{
-		boolean vacia = false;
-		
-		if(primero == null)
-			vacia = true;
-		
-		return vacia;
-	}
-	
-	public String consultarNodos(String str)
-	{
-		String resultado = "";
-		if(str.equals("VENTAS"))
-			resultado = consultarNodosAD(primerVenta, actualVenta);
-			
-		if(str.equals("ARTICULOS"))
-			resultado = consultarNodosAD(primero, actual);
-			
-		if(str.equals("ARTICULOS_ARCHIVO"))
-			resultado = consultarArchivo("Articulos.txt");
-			
-		if(str.equals("VENTAS_ARCHIVO"))
-			resultado = consultarArchivo("Ventas.txt");
-			
-		return resultado;
-	}
-	
-	private String consultarNodosAD(ArticulosDP primero, ArticulosDP actual)
-	{
-		String datos = "";
-		
-		if(primero == null)
-			datos = "LISTA_VACIA";
-		else
-		{
-			actual = primero;
-			
-			while(actual != null)
-			{
-				datos = datos + actual.toString() + "\n";
-				actual = actual.getNext();
-			}
-		}
-		return datos;
-	}
-
-	public String consultarClave(String clave)
-	{
-		String datos = "";
-		boolean encontrado = false;
-		
-		if(primero == null)
-			datos = "LISTA_VACIA"; 
-		else
-		{
-			actual = primero;
-			while((actual != null)&&(encontrado == false))
-			{
-				String id = actual.getClave();
-				if(clave.equals(id))
-				{
-					datos = actual.toString();
-					encontrado = true;
-				}
-				else
-				{
-					anterior = actual;
-					actual = actual.getNext();
-				}
-			}
-			if(encontrado == false)
-					datos = "CLAVE_NO_ENCONTRADA";
-		}
-		return datos;
-	}
-	
-	public String consultarMarca(String marca)
-	{
-		String datos = "";
-		boolean encontrado = false;
-		
-		if(primero == null)
-			datos = "LISTA_VACIA";
-		else
-		{
-			actual = primero;
-			while(actual != null)
-			{
-				String brand = actual.getMarca();
-				if(brand.equals(marca))
-				{
-					datos = datos + actual.toString() + "\n";
-					encontrado = true;
-				}
-				anterior = actual;
-				actual = actual.getNext();
-			}
-			if(encontrado == false)
-					datos = "MARCA_NO_ENCONTRADA";
-		}
-		return datos;
-	}
-	
-	public void crearNuevoNodoVentas(String datos, int venta)
-	{
-		String clave, nombre, marca, precio, datosVenta;
-		StringTokenizer st = new StringTokenizer(datos, "_");
-		clave = st.nextToken();
-		nombre = st.nextToken();
-		marca = st.nextToken();
-		st.nextToken(); //Existencia
-		precio = st.nextToken();
-		
-	    datosVenta = clave+"_"+nombre+"_"+marca+"_"+venta+"_"+precio;
-	    
-	    crearNodoVentas(datosVenta);
-	}
-	
-	public String venderArticulos(int cantidad, int existencia)
-	{
-		int nuevaCantidad = 0;
-		String nuevaExistencia = "", datos = "", datosVenta = "";
-	
-		nuevaCantidad = existencia - cantidad;
-		nuevaExistencia = Integer.toString(nuevaCantidad);
-		
-		actual.setExistencia(nuevaExistencia);
-		datos = actual.toString();
-		
-		crearNuevoNodoVentas(datos, cantidad);
-		
-		return datos;
-	}
-	
-	public String datosListaArchivo(String str)
-	{
-		String respuesta = "";
-		if(str.equals("ARTICULOS"))
-			respuesta = datosListaArchivoAD("Articulos.txt", primero, actual);
-			
-		if(str.equals("VENTAS"))
-			respuesta = datosListaArchivoAD("Ventas.txt", primerVenta, actualVenta);
-			
-		return respuesta;
-	}
-	
-	public String datosListaArchivoAD(String str, ArticulosDP primero, ArticulosDP actual)
-	{
-		String resultado = "";
-		
-		if(primero == null)
-			resultado = "LISTA_VACIA";
-		else
-		{
-			try
-			{
-				//1) Abrir archivo
-				archivoSalida = new PrintWriter(new FileWriter(str));
-				
-				//2) Procesar datos 
-				actual = primero;
-			
-				while(actual != null)
-				{
-					archivoSalida.println(actual.toString());
-					actual = actual.getNext();
-				}
-				
-				//3) Cerrar Archivo
-				archivoSalida.close();
-			}
-			catch(IOException ioe)
-			{
-				System.out.println("Error: " + ioe);
-			}
-		}
-		return resultado;
-	}
-	
-	public String borrarNodo(String clave)
-	{ 
-		if(actual == primero)
-			primero = actual.getNext(); // Nodo siguiente a "Actual"; Segundo nodo
-		else 
-		{
-			if(actual == ultimo)
-			{
-				ultimo = anterior; 
-				ultimo.setNext(null); //Apuntar a un "null" en la siguiente dirección del último nodo.
-			}
-			else
-				anterior.setNext(actual.getNext()); //Unir el nodo anterior con el siguiente del que se borra.
-		}
-		
-		return "Nodo Borrado Exitósamente.";
-	}
-	
-	public String modificarNodo(String datos)
-	{
-		StringTokenizer st = new StringTokenizer(datos, "_");
-		String clave, nombre, marca, existencia, precio, respuesta;
-		
-		clave   = st.nextToken();
-		nombre  = st.nextToken();
-		marca   = st.nextToken();
-		existencia = st.nextToken();
-		precio  = st.nextToken();
-		
-		//Nodo de Artículos
-		actual.setNombre(nombre);
-		actual.setMarca(marca);
-		actual.setExistencia(existencia);			
-		actual.setPrecio(precio);
-
-		return datos;
-	}
+	   public String consultarClave(String clave){
+	        ResultSet result = null;
+	        String query = "";
+	        String respuesta = "";
+	        
+	        query = "SELECT * FROM Producto WHERE clave = '" + clave.toString() + "'";
+	        
+	        articulosDP = new ArticulosDP();
+	        try{
+	            
+	            //1) Abrir la base de datos Banco
+	            statement = conexion.createStatement();
+	            
+	            //2) Procesar datos de la tabla resultante
+	            result = statement.executeQuery(query);
+	            
+	            if(result.next()){
+	                articulosDP.setClave(result.getString(1));
+	                articulosDP.setNombre(result.getString(2));
+	                articulosDP.setTipo(result.getString(3));
+	                articulosDP.setMarca(result.getString(4));
+	                articulosDP.setExistencia(result.getInt(5));
+	                articulosDP.setPrecio(result.getFloat(6));
+	                
+	                respuesta = respuesta + articulosDP.toString() + "\n";
+	            }
+	            
+	            if(respuesta.equals(""))
+	                respuesta = "CLAVE_NO_ENCONTRADA";
+	            
+	            //3) Cerra la base de datos banco
+	            statement.close();
+	            System.out.println(conexion.nativeSQL(query));
+	        }
+	        catch(SQLException sqle){
+	            System.out.println("Error: \n" + sqle);
+	            respuesta = "ERROR";
+	        }
+	        
+	        return respuesta;
+	    }
+	   
+	   public String consultarPor(String tipoConsulta, String str){
+	        ResultSet result = null;
+	        String query = "";
+	        String respuesta = "";
+	        
+	        if (tipoConsulta.equals("TIPO"))
+	        	query = "SELECT * FROM Producto WHERE tipo = '" + str.toString() + "'";
+	        
+	        if (tipoConsulta.equals("NOMBRE"))
+	        	query = "SELECT * FROM Producto WHERE nombre = '" + str.toString() + "'";
+	        
+	        if (tipoConsulta.equals("PROVEEDOR"))
+	        	query = "SELECT * FROM Producto WHERE proveedor = '" + str.toString() + "'";
+	        
+	        articulosDP = new ArticulosDP();
+	        try{
+	            
+	            //1) Abrir la base de datos Banco
+	            statement = conexion.createStatement();
+	            
+	            //2) Procesar datos de la tabla resultante
+	            result = statement.executeQuery(query);
+	            
+	            while(result.next()){
+	                articulosDP.setClave(result.getString(1));
+	                articulosDP.setNombre(result.getString(2));
+	                articulosDP.setTipo(result.getString(3));
+	                articulosDP.setMarca(result.getString(4));
+	                articulosDP.setExistencia(result.getInt(5));
+	                articulosDP.setPrecio(result.getFloat(6));
+	                
+	                respuesta = respuesta + articulosDP.toString() + "\n";
+	            }
+	            
+	            if(respuesta == ""){
+		            if (tipoConsulta.equals("TIPO"))
+		                respuesta = "No se encontr— ningœn art’culo de tipo: " + str;
+		            if (tipoConsulta.equals("NOMBRE"))
+		                respuesta = "No se encontr— ningœn art’culo con el nombre de: " + str;
+		            if (tipoConsulta.equals("PROVEEDOR"))
+		                respuesta = "No se encontr— ningœn art’culo del proveedor: " + str;
+	            }
+	            
+	            //3) Cerra la base de datos banco
+	            statement.close();
+	            System.out.println(conexion.nativeSQL(query));
+	        }
+	        catch(SQLException sqle){
+	            System.out.println("Error: \n" + sqle);
+	            respuesta = "No se pudo realizar la consulta";
+	        }
+	        
+	        return respuesta;
+	    }
 }

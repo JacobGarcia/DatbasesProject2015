@@ -1,17 +1,17 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-import java.util.*;
 
 
-public class ExamenIUG extends Frame implements ActionListener
+public class ExamenIUG extends JFrame implements ActionListener
 {
 
+	private static final long serialVersionUID = 1L;
 	private JMenuBar mbExamen;
 	private JMenu mArticulos;
 	private JMenuItem miArticuloAD, miArticuloADLL;
 	private JPanel panel;
-//	private ArticulosIUG articulos = new ArticulosIUG();
+	private ArticulosIUG articulos = new ArticulosIUG();
 
 	public ExamenIUG()
 	{
@@ -20,12 +20,12 @@ public class ExamenIUG extends Frame implements ActionListener
 		//Atributos
 		mbExamen = new JMenuBar();
 
-		mArticulos = new JMenu();
+		mArticulos = new JMenu("Productos");
 
-		miArticuloAD = new JMenuItem();
+		miArticuloAD = new JMenuItem("Art’culos AD");
 		miArticuloAD.addActionListener(this);
 
-		miArticuloADLL = new JMenuItem();
+		miArticuloADLL = new JMenuItem("Art’culos ADLL");
 		miArticuloADLL.addActionListener(this);
 
 		panel = new JPanel();
@@ -39,7 +39,7 @@ public class ExamenIUG extends Frame implements ActionListener
 
 		//Vizualizar Frame
 
-		//setJMenuBar(mbExamen);
+		setJMenuBar(mbExamen);
 		setSize(700, 450);
 		setVisible(true);
 	}
