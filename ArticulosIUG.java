@@ -21,7 +21,7 @@ import java.util.*;
 @SuppressWarnings("serial")
 public class ArticulosIUG extends Frame implements ActionListener
 {
-	private JTextField tfClave,tfNombre, tfExistencia, tfMarca, tfPrecio, tfTipo, tfFechaHora;
+	private JTextField tfClave,tfNombre, tfExistencia, tfMarca, tfPrecio, tfTipo;
 	private JButton    bCapturar, bConsultar, bConsutlarTipo, bConsultarClave,
 					   bVender, bRealizarTransaccion, bCancelar, bBorrar,
 					   bConsultarVentas, bConsultarArchivo, bConsultarArchivoVentas, bSalir,
@@ -49,7 +49,6 @@ public class ArticulosIUG extends Frame implements ActionListener
 		tfPrecio		= new JTextField();
 		tfMarca			= new JTextField();
 		tfTipo			= new JTextField();
-		tfFechaHora		= new JTextField();
 		taDatos    		= new JTextArea(13, 40);
 		p1  	   		= new JPanel();
 		p2  	   		= new JPanel();
@@ -74,10 +73,6 @@ public class ArticulosIUG extends Frame implements ActionListener
 
 		p1.add(new Label("Precio (Unitario)"));
 		p1.add(tfPrecio);
-		
-		p1.add(new Label("Fecha/Hora"));
-		p1.add(tfFechaHora);
-		tfFechaHora.setEnabled(false);
 		
 		bCapturar = new JButton("Crear Art’culo");
 		bCapturar.addActionListener(this);
@@ -300,7 +295,7 @@ public class ArticulosIUG extends Frame implements ActionListener
 	private void realizarVenta()
 	{
 		boolean cantidadCorrecta = false;
-		String str = "", strError = "Debes introducir una cantidad válida. Recuerda : \n 1) S—lo debes introducir números enteros; positivos \n 2) Debes dejar a lo más cero art’culos en 'stock'" ;
+		String str = "", strError = "Debes introducir una cantidad v‡lida. Recuerda : \n 1) S—lo debes introducir nœmeros enteros; positivos \n 2) Debes dejar a lo m‡s cero art’culos en 'stock'" ;
 		String strExistencia = tfExistencia.getText();
 		int cantidad = 0;
 		int existencia = Integer.parseInt(strExistencia);
@@ -317,10 +312,25 @@ public class ArticulosIUG extends Frame implements ActionListener
 					{
 						cantidadCorrecta = true;
 						clave = tfClave.getText();
-						//resultado = articulos.venderArticulos(cantidad, existencia);
+						precio = tfPrecio.getText();
+						float costo = Float.parseFloat(precio);
+						date = new Date();
+						
+						/* MySQL Date format */
+					    formatoFecha = new SimpleDateFormat("yyyy-MM-dd");
+						formatoHora  = new SimpleDateFormat("hh:mm:ss");
+						
+						/* Adicionar la fecha al textfield */
+						fecha = formatoFecha.format(date);
+						hora  = formatoHora.format(date);
+						
+						datos = clave+"_"+cantidad+"_"+ (costo * cantidad) +"_" + fecha + "_" + hora;
+						
+						resultado = articulos.venderArticulos(cantidad, existencia, clave, datos);
 						habilitarCampos(true);
 						habilitarBotones(true);
 						print(resultado);
+						clrFields();
 					}
 			}
 			catch(NumberFormatException nfe)
