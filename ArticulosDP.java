@@ -61,10 +61,9 @@ public class ArticulosDP
 		return this.precio;
 	}
 	
-		
-	public ArticulosDP getNext()
+	public String getTipo()
 	{
-		return this.next;
+		return this.tipo;
 	}
 	
 	//Mutators(Setters)
@@ -107,6 +106,11 @@ public class ArticulosDP
 	public String toString()
 	{
 		return this.clave+"_"+this.nombre+"_"+this.tipo+"_"+this.marca+"_"+this.existencia+"_"+this.precio;
+	}
+	
+	public String toStringVentas()
+	{
+		return this.clave+"_"+this.nombre+"_"+this.tipo+"_"+this.marca+"_"+this.precio;
 	}
 	
     public String toSQLString(){

@@ -83,6 +83,10 @@ public class VentasDP
 		this.hora = hora;
 	}
 	
+    public String toString(){
+        return this.cantidad + "_" + this.ventaTotal + "_" + this.fecha + "_" + this.hora;
+    }
+    
     public String toSQLString(){
         return "'" + this.clave + "'," + this.cantidad+","+this.ventaTotal+",'"+this.fecha+"','" + this.hora + "'";
     }

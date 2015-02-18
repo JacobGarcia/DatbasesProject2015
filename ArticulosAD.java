@@ -6,6 +6,8 @@ import java.sql.Statement;
 import java.util.*;
 import java.io.*;
 
+import javax.swing.SpringLayout.Constraints;
+
 public class ArticulosAD{
 	
     private Connection conexion;
@@ -145,6 +147,55 @@ public class ArticulosAD{
 	        return respuesta;
 	    }
 	   
+	   private String consultarClave(String clave, String clause, String comparador){
+	        ResultSet result = null;
+	        String query = "";
+	        String respuesta = "";
+	        
+	        query = "SELECT * FROM Producto WHERE clave = '" + clave.toString() + "'";
+	        
+	        articulosDP = new ArticulosDP();
+	        try{
+	            
+	            //1) Abrir la base de datos Banco
+	            statement = conexion.createStatement();
+	            
+	            //2) Procesar datos de la tabla resultante
+	            result = statement.executeQuery(query);
+	            
+	            if(result.next()){
+	                articulosDP.setClave(result.getString(1));
+	                articulosDP.setNombre(result.getString(2));
+	                articulosDP.setTipo(result.getString(3));
+	                articulosDP.setMarca(result.getString(4));
+	                articulosDP.setPrecio(result.getFloat(6));
+	                
+	                if(clause.equals(""))
+	                	respuesta = respuesta + articulosDP.toStringVentas();
+	                
+	                if(clause.equals("PROVEEDOR")){
+	                	if(comparador.equals(articulosDP.getMarca()))
+	                		respuesta = respuesta + articulosDP.toStringVentas();
+	                }
+	                
+	                if(clause.equals("TIPO")){
+	                	if(comparador.equals(articulosDP.getTipo()))
+	                		respuesta = respuesta + articulosDP.toStringVentas();
+	                }
+	            }
+	            
+	            //3) Cerra la base de datos banco
+	            statement.close();
+	            System.out.println(conexion.nativeSQL(query));
+	        }
+	        catch(SQLException sqle){
+	            System.out.println("Error: \n" + sqle);
+	            respuesta = "ERROR";
+	        }
+	        
+	        return respuesta;
+	    }
+	   
 	   public String consultarPor(String tipoConsulta, String str){
 	        ResultSet result = null;
 	        String query = "";
@@ -238,7 +289,95 @@ public class ArticulosAD{
 	        }
 	        
 	        return res;
+		}
 
+		public String consultarVentas() {
+	        ResultSet result = null;
+	        String query = "";
+	        String respuesta = "";
+	        
+	        query = "SELECT * FROM Ventas";
+	        
+	        ventasDP = new VentasDP();
+	        articulosDP = new ArticulosDP();
+	        try{
+	            
+	            //1) Abrir la base de datos Banco
+	            statement = conexion.createStatement();
+	            
+	            //2) Procesar datos de la tabla Ventas
+	            result = statement.executeQuery(query);
+	            
+	            while(result.next()){
+	            	ventasDP.setClave(result.getString(1));
+	            	respuesta = respuesta + consultarClave(result.getString(1), "", null);
+	            	ventasDP.setCantidad(result.getInt(2));
+	            	ventasDP.setVentaTotal(result.getFloat(3));
+	            	ventasDP.setFecha(result.getString(4));
+	            	ventasDP.setHora(result.getString(5));
+	                
+	                respuesta = respuesta + "_" + ventasDP.toString() + "\n";
+	            }
+	            
+	            //3) Cerra la base de datos banco
+	            statement.close();
+	            System.out.println(conexion.nativeSQL(query));
+	        }
+	        catch(SQLException sqle){
+	            System.out.println("Error: \n" + sqle);
+	            respuesta = "No se pudo realizar la consulta";
+	        }
+	        
+	        return respuesta;
+		}
+		
+		public String consultarVentasPor(String tipoConsulta, String string){
+			 ResultSet result = null;
+		     String query = "";
+		     String respuesta = "", consulta = "";
+		     
+		     query = "SELECT * FROM Ventas";
+		     ventasDP = new VentasDP();
+		     try{
+		            //1) Abrir la base de datos Banco
+		            statement = conexion.createStatement();
+		            
+		            //2) Procesar datos de la tabla Ventas
+		            result = statement.executeQuery(query);
+		            
+		            while(result.next()){
+		            	ventasDP.setClave(result.getString(1));
+		            	consulta = consultarClave(result.getString(1), tipoConsulta, string);
+		            	if (!consulta.equals("")) {
+		            		respuesta += consulta;
+		            		ventasDP.setCantidad(result.getInt(2));
+			            	ventasDP.setVentaTotal(result.getFloat(3));
+			            	ventasDP.setFecha(result.getString(4));
+			            	ventasDP.setHora(result.getString(5));
+			              
+			                respuesta = respuesta + "_" + ventasDP.toString() + "\n";
+						}
+		            }
+		            
+		            //3) Cerra la base de datos banco
+		            statement.close();
+		            
+		            if (respuesta.equals("")){
+		            	if (tipoConsulta.equals("PROVEEDOR")) {
+							respuesta = "PROVEEDOR_NO_VENTA";
+						}
+		            	if (tipoConsulta.equals("TIPO")) {
+							respuesta = "TIPO_NO_VENTA";
+						}
+		            }
+		            
+		            System.out.println(conexion.nativeSQL(query));
+		        }
+		        catch(SQLException sqle){
+		            System.out.println("Error: \n" + sqle);
+		            respuesta = "No se pudo realizar la consulta";
+		        }
+			return respuesta;
 		}
 	    
 }

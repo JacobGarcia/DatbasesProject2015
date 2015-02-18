@@ -23,9 +23,9 @@ public class ArticulosIUG extends Frame implements ActionListener
 {
 	private JTextField tfClave,tfNombre, tfExistencia, tfMarca, tfPrecio, tfTipo;
 	private JButton    bCapturar, bConsultar, bConsutlarTipo, bConsultarClave,
-					   bVender, bRealizarTransaccion, bCancelar, bBorrar,
-					   bConsultarVentas, bConsultarArchivo, bConsultarArchivoVentas, bSalir,
-					   bModificar, bConsultarNombre, bConsultarProveedor;
+					   bVender, bRealizarTransaccion, bCancelar,
+					   bConsultarVentas, bConsultarVentasProveedor, bConsultarVentasTipo, bSalir,
+					   bConsultarNombre, bConsultarProveedor;
 	private JTextArea  taDatos;
 	public JPanel 	   p1, p2;
 	
@@ -54,7 +54,7 @@ public class ArticulosIUG extends Frame implements ActionListener
 		p2  	   		= new JPanel();
 		
 		//Agregar los atributos a los paneles
-		p1.setLayout(new GridLayout(15, 2));
+		p1.setLayout(new GridLayout(13, 2));
 		
 		p1.add(new Label("Clave"));
 		p1.add(tfClave);
@@ -102,25 +102,17 @@ public class ArticulosIUG extends Frame implements ActionListener
 		bVender.addActionListener(this);
 		p1.add(bVender);
 		
-		bModificar = new JButton("Modificar Art’culos");
-		bModificar.addActionListener(this);
-		p1.add(bModificar);
-		
-		bBorrar = new JButton("Dar de Baja Art’culo");
-		bBorrar.addActionListener(this);
-		p1.add(bBorrar);
-		
 		bConsultarVentas = new JButton("Consultar Ventas");
 		bConsultarVentas.addActionListener(this);
 		p1.add(bConsultarVentas);
 		
-		bConsultarArchivo = new JButton("Consultar Archivo de Art’culos");
-		bConsultarArchivo.addActionListener(this);
-		p1.add(bConsultarArchivo);
+		bConsultarVentasProveedor = new JButton("Consultar Ventas por Proveedor");
+		bConsultarVentasProveedor.addActionListener(this);
+		p1.add(bConsultarVentasProveedor);
 				
-		bConsultarArchivoVentas = new JButton("Consultar Archivo de Ventas");
-		bConsultarArchivoVentas.addActionListener(this);
-		p1.add(bConsultarArchivoVentas);
+		bConsultarVentasTipo = new JButton("Consultar Ventas por Tipo'");
+		bConsultarVentasTipo.addActionListener(this);
+		p1.add(bConsultarVentasTipo);
 		
 		bRealizarTransaccion = new JButton("Realizar Transacci—n");
 		bRealizarTransaccion.addActionListener(this);
@@ -170,11 +162,9 @@ public class ArticulosIUG extends Frame implements ActionListener
 		bConsultarClave.setEnabled(value);
 		bConsutlarTipo.setEnabled(value);
 		bVender.setEnabled(value);
-		bModificar.setEnabled(value);
-		bBorrar.setEnabled(value);
 		bConsultarVentas.setEnabled(value);
-		bConsultarArchivo.setEnabled(value);
-		bConsultarArchivoVentas.setEnabled(value);
+		bConsultarVentasProveedor.setEnabled(value);
+		bConsultarVentasTipo.setEnabled(value);
 		bConsultarNombre.setEnabled(value);
 		bConsultarProveedor.setEnabled(value);
 		
@@ -429,9 +419,47 @@ public class ArticulosIUG extends Frame implements ActionListener
 		return resultado;
 	}
 	
+	private String consultarVentas(String elemento)	// Se busca si existe y manda el resultado (Nombre o Clave)	
+	{
+		
+		if (elemento.equals("TIPO"))
+		{
+			tipo = tfTipo.getText();
+			
+			if(tipo.equals(""))
+					resultado = "TIPO_VACIO";
+				
+			else
+				resultado = articulos.consultarVentasPor("TIPO",tipo);
+		}
+		
+		if (elemento.equals("PROVEEDOR"))
+		{
+			marca = tfMarca.getText();
+			
+			if(marca.equals(""))
+					resultado = "PROVEEDOR_VACIO";
+				
+			else
+				resultado = articulos.consultarVentasPor("PROVEEDOR",marca);
+		}
+					
+		if(elemento.equals("CLAVE"))
+		{
+			clave = tfClave.getText();
+
+			if(clave.equals(""))
+					resultado = "CLAVE_VACIA";
+				
+			else
+				resultado = articulos.consultarClave(clave);
+		}
+
+		return resultado;
+	}
 	private void print(String str)
 	{
-		if(str.equals("NOMBRE_VACIO")||(str.equals("TIPO_VACIO"))||(str.equals("CLAVE_NO_ENCONTRADA"))||(str.equals("CAMPO_VACIO"))||(str.equals("PROVEEDOR_VACIO"))||(str.equals("TOKEN"))||(str.equals("NO_NUMERICO"))||(str.equals("NEGATIVO"))||(str.equals("CLAVE_VACIA"))||(str.equals("MARCA_NO_ENCONTRADA")||(str.equals("NO_VENTA"))))
+		if(str.equals("NOMBRE_VACIO")||(str.equals("TIPO_VACIO"))||(str.equals("CLAVE_NO_ENCONTRADA"))||(str.equals("CAMPO_VACIO"))||(str.equals("PROVEEDOR_VACIO"))||(str.equals("TOKEN"))||(str.equals("NO_NUMERICO"))||(str.equals("NEGATIVO"))||(str.equals("CLAVE_VACIA"))||(str.equals("PROVEEDOR_NO_ENCONTRADO")||(str.equals("NO_VENTA"))||(str.equals("PROVEEDOR_NO_VENTA")) || (str.equals("TIPO_NO_VENTA"))))
 		{
 			if(str.equals("NOMBRE_VACIO"))
 				taDatos.setText("Message Log\n--------------------------------------------------------------------------------\nEl campo 'Nombre' se encuentra vac’o.");
@@ -442,8 +470,8 @@ public class ArticulosIUG extends Frame implements ActionListener
 			if(str.equals("CLAVE_NO_ENCONTRADA"))
 				taDatos.setText("Message Log\n--------------------------------------------------------------------------------\nLa Clave '" + tfClave.getText() + "' no se encontr— en la base de datos.");
 				
-			if(str.equals("MARCA_NO_ENCONTRADA"))
-				taDatos.setText("Message Log\n--------------------------------------------------------------------------------\nLa Marca '" + tfMarca.getText() + "' no se encontr— en los base de datos.");
+			if(str.equals("PROVEEDOR_NO_ENCONTRADO"))
+				taDatos.setText("Message Log\n--------------------------------------------------------------------------------\nEl Proveedor '" + tfMarca.getText() + "' no se encontr— en los base de datos.");
 				
 			if(str.equals("CAMPO_VACIO"))
 				taDatos.setText("Message Log\n--------------------------------------------------------------------------------\nTodos los campos deben contener datos.");
@@ -464,6 +492,12 @@ public class ArticulosIUG extends Frame implements ActionListener
 				
 			if(str.equals("NO_VENTA"))
 				taDatos.setText("Message Log\n--------------------------------------------------------------------------------\nNo se pueden vender art’culos con la cantidad de '0'");
+			
+			if(str.equals("PROVEEDOR_NO_VENTA"))
+				taDatos.setText("Message Log\n--------------------------------------------------------------------------------\nNo se tienen ventas registradas para el proveedor '" + tfMarca.getText() + "'.");
+			
+			if(str.equals("TIPO_NO_VENTA"))
+				taDatos.setText("Message Log\n--------------------------------------------------------------------------------\nNo se tienen ventas registradas para el tipo '" + tfTipo.getText() + "'.");
 				
 		}
 		else
@@ -590,56 +624,23 @@ public class ArticulosIUG extends Frame implements ActionListener
 		
 		if(e.getSource() == bConsultarVentas)
 		{
-			//resultado = articulos.consultarArticulos("VENTAS");
+			resultado = articulos.consultarVentas();
 			print(resultado);
 		}
 		
-		if(e.getSource() == bConsultarArchivo)
+		if(e.getSource() == bConsultarVentasProveedor)
 		{
-		//	resultado = articulos.consultarArticulos("ARTICULOS_ARCHIVO");
+			resultado = consultarVentas("PROVEEDOR");
 			print(resultado);
 		}
 		
 				
-		if(e.getSource() == bConsultarArchivoVentas)
+		if(e.getSource() == bConsultarVentasTipo)
 		{
-			//resultado = articulos.consultarArticulos("VENTAS_ARCHIVO");
+			resultado = consultarVentas("TIPO");
 			print(resultado);
 		}
 		
-		if(e.getSource() == bBorrar)
-		{
-			//1) Hacer una consulta de los datos para comprobar que exista la "Clave" o "Registro"
-			resultado = consultar("CLAVE");
-			
-			//2) Comprobar que ninguno de los campos cumplan con los diversos requisitos, y en caso de que estos no se respeten, evitar enviar los datos en ese estado a los nodos
-			if(resultado.equals("CLAVE_VACIA")||(resultado.equals("articulos_VACIA"))||(resultado.equals("CLAVE_NO_ENCONTRADA")))
-				print(resultado);
-			else
-			{
-				mostrar(resultado);
-				habilitarBotones(false);
-				habilitarCampos(false);
-				controlador = "BORRAR";
-			}
-		}
-		
-		if(e.getSource() == bModificar)
-		{
-			//1) Hacer una consulta de los datos para comprobar que exista la "Clave" o "Registro"
-			resultado = consultar("CLAVE");
-
-			//2) Hacer las validaciones correspondientes
-			if((resultado.equals("articulos_VACIA"))||(resultado.equals("CLAVE_NO_ENCONTRADA"))||(resultado.equals("CLAVE_VACIA")))
-				print(resultado);
-			else
-			{
-				mostrar(resultado);
-				habilitarBotones(false);
-				tfClave.setEnabled(false);//Evitar que el usuario cambie la clave para proteger funcionamiento correcto del sistema
-				controlador = "MODIFICAR";
-			}
-		}
 	}
 	
 	public static void main(String args[])
