@@ -3,10 +3,6 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.*;
-import java.io.*;
-
-import javax.swing.SpringLayout.Constraints;
 
 public class ArticulosAD{
 	
@@ -62,6 +58,7 @@ public class ArticulosAD{
         }
         catch(SQLException sqle){
             	System.out.println("Error: " + sqle);
+            	respuesta = "CLAVE_DUPLICADA";
         }
         return respuesta;
 	}

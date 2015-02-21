@@ -8,8 +8,6 @@ public class ArticulosDP
 	private String marca;
 	private float precio;
 	private String tipo;
-
-	private ArticulosDP next;
 	
 	//Constructors
 	public ArticulosDP()
@@ -90,11 +88,6 @@ public class ArticulosDP
 	public void setPrecio(float precio)
 	{
 		this.precio = precio;
-	}
-	
-	public void setNext(ArticulosDP dir)
-	{
-		this.next = dir;
 	}
 	
 	public void setTipo(String tipo)
